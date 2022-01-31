@@ -92,7 +92,7 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3808412720995022085}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
@@ -217,7 +217,7 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5842044913401817423}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
@@ -459,6 +459,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rateItemCreation: 5
+  offsetItemPlace: 0.35
+  buildingResourceCreation: {fileID: 0}
 --- !u!114 &1480685256317868293
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -471,7 +473,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aebbc93accdbcd45afed4f396d8f3e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buildTypeComponents: 2
+  buildTypeComponents: 02000000
   resourceStores:
   - {fileID: 7876089899125352742}
   - {fileID: 4370366854282171819}

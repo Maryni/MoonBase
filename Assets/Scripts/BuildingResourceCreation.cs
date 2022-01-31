@@ -5,21 +5,24 @@ using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class BuildingRecourceCreation : MonoBehaviour
+public class BuildingResourceCreation : MonoBehaviour
 {
 
    #region Inspector variables
 
-   [SerializeField] private BuildTypeComponent buildTypeComponents;
+   [SerializeField] private List<BuildTypeComponent> buildTypeComponents;
    [SerializeField] private List<ResourceStore> resourceStores;
+   [SerializeField] private List<Item> itemsWhichStoreHave;
    [Header("Settings"),SerializeField] private int countResourceUsingInCreation = 1;
    [SerializeField]  private int countItemCreatePerTime = 1;
    
    #endregion
    
    #region private variables
-   
-   //[SerializeField] private int countComponentCompleted;
+
+   private float offset;
+   private float offsetDefault;
+   private float maxOffset = 10f;
    private bool canBuildComponent = false;
    private Coroutine itemCreationCoroutine;
    private UnityAction actionWhenItemCreated;
@@ -28,8 +31,17 @@ public class BuildingRecourceCreation : MonoBehaviour
 
    #endregion private variables
 
-   public BuildTypeComponent BuildTypeComponents => buildTypeComponents;
-   
+   #region properties
+
+   public List<BuildTypeComponent> BuildTypeComponents => buildTypeComponents;
+   public List<ResourceStore> ResourceStores => resourceStores;
+   public ResourceStore ResourceStoreGet => resourceStores[0];
+   public ResourceStore ResourceStoreSet => resourceStores[1];
+   public int CountResourceInStoreGet => ResourceStoreGet.CountCurrentResources;
+   public int CountResourceInStoreSet => ResourceStoreSet.CountCurrentResources;
+
+   #endregion properties
+
    #region private functions
 
    private IEnumerator ItemCreation(float rate)
@@ -82,6 +94,26 @@ public class BuildingRecourceCreation : MonoBehaviour
       }
    }
    
+   private void ShowObject(GameObject obj, bool needChangeTransform)
+   {
+      if (needChangeTransform)
+      {
+         obj.transform.position = ResourceStoreGet.transform.position;
+         obj.transform.localPosition = new Vector3(0,offset,0f);
+         offset += offsetDefault;
+         if (offset > maxOffset)
+         {
+            offset = offsetDefault;
+         }
+      }
+      obj.SetActive(true);
+   }
+
+   private void HideObject(GameObject obj)
+   {
+      obj.SetActive(false);
+   }
+   
    #endregion private functions
    
    #region public functions
@@ -93,22 +125,6 @@ public class BuildingRecourceCreation : MonoBehaviour
          itemCreationCoroutine = StartCoroutine(ItemCreation(rateCreation));
       }
    }
-
-   
-   // public void SetCapacity(int value)
-   // {
-   //    capacity = value;
-   // }
-   //
-   // public void TakeComponents(int value)
-   // {
-   //    countComponentCompleted -= value;
-   // }
-   //
-   // public void IncreasedCountComponentCompleted(int value)
-   // {
-   //    countComponentCompleted += value;
-   // }
 
    public void StopItemCreationCoroutine()
    {
@@ -142,7 +158,60 @@ public class BuildingRecourceCreation : MonoBehaviour
 
    public void PlaceItemOnStore(Item item)
    {
-      
+      for (int i = 0; i < resourceStores.Count; i++)
+      {
+         if (resourceStores[i].StoreAction == StoreAction.Set)
+         {
+            if (resourceStores[i].BuildTypeComponent != BuildTypeComponent.None)
+            {
+               resourceStores[i].SetItemInStore();
+            }
+            else
+            {
+               GetItemFromStore(); 
+            }
+         }
+
+         if (resourceStores[i].StoreAction == StoreAction.Get)
+         {
+            resourceStores[i].SetItemInStore();
+            item.gameObject.transform.parent = resourceStores[i].transform;
+         }
+      }
+      itemsWhichStoreHave.Add(item);
+      ShowObject(item.gameObject,true);
+   }
+
+   public void GetItemFromStore()
+   {
+      for (int i = 0; i < resourceStores.Count; i++)
+      {
+         if (resourceStores[i].StoreAction == StoreAction.Get)
+         {
+            resourceStores[i].SetItemInStore();
+         }
+      }
+   }
+
+   public void SetOffset(float value)
+   {
+      offset = value;
+      offsetDefault = offset;
+   }
+
+   public Item GetLastItem()
+   {
+      var obj = itemsWhichStoreHave[itemsWhichStoreHave.Count - 1];
+      itemsWhichStoreHave.RemoveAt(itemsWhichStoreHave.Count - 1);
+      return obj;
+   }
+
+   public void SetRateToStores(float rate)
+   {
+      for (int i = 0; i < resourceStores.Count; i++)
+      {
+         resourceStores[i].SetRateActionWithInventory(rate);
+      }
    }
    
    #endregion public functions

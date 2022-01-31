@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,7 +13,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private Movement movement;
     [SerializeField] private PoolManager poolManager;
 
-    private void Awake()
+    private void Start()
     {
         SetAll();
         SetDefaults();
@@ -43,27 +41,18 @@ public class GameController : MonoBehaviour
             {
                 texts.Add(textPanelGameObject.transform.GetChild(i).GetComponent<Text>());
             }
-            
         }
     }
 
     private void SetActions()
     {
         drugDrop.SetActionToDragging(() => movement.Move());
+
         for (int i = 0; i < buildings.Count; i++)
         {
-            buildings[i].GetComponent<BuildingRecourceCreation>().SetActionsWhenItemCreated(() => 
-                poolManager.GetItemByType(buildings[i].GetComponent<BuildingRecourceCreation>().BuildTypeComponents));
-            buildings[i].GetComponent<BuildingRecourceCreation>().SetActionsWhenResourceZero(
-                () => texts[i].text = $"Resource are zero in {buildings[i].name}");
-            buildings[i].GetComponent<BuildingRecourceCreation>().SetActionsWhenCompleteComponentFull(
-                ()=> texts[i].text = $"Store in {buildings[i].name} is full");
-            
+          SetBuildingActions(i);
+          SetResourceStoreAction(i);
         }
-        //get to inventory
-        //set to store
-        
-        
     }
     private void SetDefaults()
     {
@@ -76,7 +65,6 @@ public class GameController : MonoBehaviour
         {
             poolManager = FindObjectOfType<PoolManager>();
         }
-        
 
         if (movement == null)
         {
@@ -88,23 +76,61 @@ public class GameController : MonoBehaviour
             drugDrop = FindObjectOfType<DrugDrop>();
             movement.SetDrugDrop(drugDrop);
         }
+
+        for (int i = 0; i < buildings.Count; i++)
+        {
+            buildings[i].SetBuildingResourceCreation(buildings[i].GetComponent<BuildingResourceCreation>());
+            buildings[i].BuildingResourceCreation.SetRateToStores(movement.GetComponent<Inventory>().RateInventoryAction);
+        }
+        movement.GetComponent<Inventory>().SetInventoryPoolTransform(movement.transform.GetChild(0));
     }
 
     private void StartAllBuildings()
     {
         for (int i = 0; i < buildings.Count; i++)
         {
-            buildings[i].GetComponent<BuildingRecourceCreation>().StartItemCreationCoroutine(buildings[i].RateResourcesCreation);
+            buildings[i].BuildingResourceCreation.StartItemCreationCoroutine(buildings[i].RateResourcesCreation);
         }
     }
 
-    private void ShowObject(GameObject obj)
+    private void ResourcesIsZero(int index)
     {
-        obj.SetActive(true);
+        texts[index].text = $"Resource are zero in {buildings[index].name}";
     }
 
-    private void HideObject(GameObject obj)
+    private void FullStores(int index)
     {
-        obj.SetActive(false);
+        texts[index].text = $"Store in {buildings[index].name} is full";
+    }
+
+    private void ClearText(int index)
+    {
+        texts[index].text = "";
+    }
+
+    private void SetBuildingActions(int index)
+    {
+        buildings[index].BuildingResourceCreation.SetActionsWhenItemCreated(
+            () => buildings[index].BuildingResourceCreation.PlaceItemOnStore(poolManager.GetItemByType(buildings[index].BuildingResourceCreation.BuildTypeComponents[0])),
+            () => buildings[index].BuildingResourceCreation.ResourceStoreSet.GetItemFromStore(),
+            () => buildings[index].BuildingResourceCreation.ResourceStoreSet.GetItemFromStore(),
+            () => ClearText(index));
+        buildings[index].BuildingResourceCreation.SetActionsWhenResourceZero(
+            () => ResourcesIsZero(index));
+        buildings[index].BuildingResourceCreation.SetActionsWhenCompleteComponentFull(
+            () => FullStores(index));
+    }
+
+    private void SetResourceStoreAction(int index)
+    {
+        buildings[index].BuildingResourceCreation.ResourceStoreGet.SetActionOnTrigger(
+                () => buildings[index].BuildingResourceCreation.ResourceStoreGet.GetItemFromStore(),
+                () => movement.GetComponent<Inventory>().SetItemToInventory(buildings[index].BuildingResourceCreation.GetLastItem())
+                );
+
+        buildings[index].BuildingResourceCreation.ResourceStoreSet.SetActionOnTrigger(
+                () => buildings[index].BuildingResourceCreation.ResourceStoreSet.SetItemInStore(),
+                () => buildings[index].BuildingResourceCreation.PlaceItemOnStore(movement.GetComponent<Inventory>().GetItemFromInventory())  
+                );
     }
 }

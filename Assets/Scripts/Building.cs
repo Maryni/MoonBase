@@ -23,8 +23,11 @@ public class Building : MonoBehaviour
     #region Inspector variables
     
     [SerializeField] private float rateItemCreation;
+    [SerializeField] private float offsetItemPlace;
+    [SerializeField] private BuildingResourceCreation buildingResourceCreation;
 
     public float RateResourcesCreation => rateItemCreation;
+    public BuildingResourceCreation BuildingResourceCreation => buildingResourceCreation;
     #endregion Inspector variables
 
     #region private variables
@@ -53,5 +56,11 @@ public class Building : MonoBehaviour
         transformSetResources = transformSet;
     }
 
+    public void SetBuildingResourceCreation(BuildingResourceCreation component)
+    {
+        buildingResourceCreation = component;
+        buildingResourceCreation.SetOffset(offsetItemPlace);
+    }
+    
     #endregion public functions
 }
