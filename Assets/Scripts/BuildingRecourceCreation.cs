@@ -10,18 +10,16 @@ public class BuildingRecourceCreation : MonoBehaviour
 
    #region Inspector variables
 
-   [SerializeField] private List<BuildTypeComponent> buildTypeComponents;
-
+   [SerializeField] private BuildTypeComponent buildTypeComponents;
+   [SerializeField] private List<ResourceStore> resourceStores;
+   [Header("Settings"),SerializeField] private int countResourceUsingInCreation = 1;
+   [SerializeField]  private int countItemCreatePerTime = 1;
+   
    #endregion
    
    #region private variables
    
    //[SerializeField] private int countComponentCompleted;
-   [SerializeField] private List<ResourceStore> resourceStores;
-
-   [Header("Settings"),SerializeField] private int countResourceUsingInCreation = 1;
-   [SerializeField]  private int countItemCreatePerTime = 1;
-
    private bool canBuildComponent = false;
    private Coroutine itemCreationCoroutine;
    private UnityAction actionWhenItemCreated;
@@ -30,6 +28,8 @@ public class BuildingRecourceCreation : MonoBehaviour
 
    #endregion private variables
 
+   public BuildTypeComponent BuildTypeComponents => buildTypeComponents;
+   
    #region private functions
 
    private IEnumerator ItemCreation(float rate)
@@ -138,6 +138,11 @@ public class BuildingRecourceCreation : MonoBehaviour
       {
          actionWhenCompleteComponentStoreFull += actions[i];
       }
+   }
+
+   public void PlaceItemOnStore(Item item)
+   {
+      
    }
    
    #endregion public functions

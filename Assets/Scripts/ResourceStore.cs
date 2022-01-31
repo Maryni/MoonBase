@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,7 +11,7 @@ public enum StoreAction
 }
 public class ResourceStore : MonoBehaviour
 {
-    [SerializeField] private  BuildTypeComponent typeComponent;
+    [SerializeField] private BuildTypeComponent typeComponent;
     [SerializeField] private StoreAction storeAction;
     [SerializeField] private int capacity;
     [SerializeField] private int countCurrentResources;
@@ -19,7 +20,7 @@ public class ResourceStore : MonoBehaviour
 
     public StoreAction StoreAction => storeAction;
 
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collision)
     {
         actionOnTrigger?.Invoke();
     }
@@ -29,6 +30,7 @@ public class ResourceStore : MonoBehaviour
         actionOnTrigger += action;
     }
 
+    //write get/set item mechanic
     public bool IsHaveResource()
     {
         if (countCurrentResources > 0)

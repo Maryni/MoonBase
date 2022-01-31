@@ -52,7 +52,6 @@ public class Building : MonoBehaviour
         transformGetResources = transformGet;
         transformSetResources = transformSet;
     }
-    
 
     #endregion public functions
 }

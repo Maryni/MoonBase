@@ -8,9 +8,12 @@ public class TriggerActions : MonoBehaviour
 {
     private UnityAction actionOnTrigger;
 
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collision)
     {
-        actionOnTrigger?.Invoke();
+        if (collision.gameObject.GetComponent<Movement>())
+        {
+            actionOnTrigger?.Invoke(); 
+        }
     }
 
     public void SetActionOnTrigger(UnityAction action)
